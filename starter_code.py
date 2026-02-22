@@ -33,7 +33,13 @@ def bubble_sort(arr):
     # Hint: Use nested loops - outer loop for passes, inner loop for comparisons
     # Hint: Compare adjacent elements and swap if left > right
     
-    pass  # Delete this and write your code
+    arr = arr.copy()
+    n = len(arr)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+    return arr
 
 
 def selection_sort(arr):
@@ -55,7 +61,15 @@ def selection_sort(arr):
     # TODO: Implement selection sort
     # Hint: Find minimum element in unsorted portion, swap it with first unsorted element
     
-    pass  # Delete this and write your code
+    arr = arr.copy()
+    n = len(arr)
+    for i in range(n):
+        min_idx = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]
+    return arr
 
 
 def insertion_sort(arr):
@@ -77,7 +91,16 @@ def insertion_sort(arr):
     # TODO: Implement insertion sort
     # Hint: Start from second element, insert it into correct position in sorted portion
     
-    pass  # Delete this and write your code
+    arr = arr.copy()
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
 
 
 def merge_sort(arr):
@@ -101,7 +124,26 @@ def merge_sort(arr):
     # Hint: Recursive case - split array in half, sort each half, merge sorted halves
     # Hint: You'll need a helper function to merge two sorted arrays
     
-    pass  # Delete this and write your code
+    def merge(left, right):
+        result = []
+        i = j = 0
+        while i < len(left) and j < len(right):
+            if left[i] <= right[j]:
+                result.append(left[i])
+                i += 1
+            else:
+                result.append(right[j])
+                j += 1
+        result.extend(left[i:])
+        result.extend(right[j:])
+        return result
+
+    if len(arr) <= 1:
+        return arr.copy()
+    mid = len(arr) // 2
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+    return merge(left, right)
 
 
 # ============================================================================
@@ -133,15 +175,35 @@ def demonstrate_stability():
     # Hint: For stable sort: items with price 999 should stay in order (B before D)
     # Hint: For stable sort: items with price 1999 should stay in order (A before C before E)
     
-    results = {
-        "bubble_sort": "Not tested",
-        "selection_sort": "Not tested", 
-        "insertion_sort": "Not tested",
-        "merge_sort": "Not tested"
+    results = {}
+
+    # Helper to check stability
+    def is_stable(sorted_products, price):
+        original_positions = [p["original_position"] for p in sorted_products if p["price"] == price]
+        return original_positions == sorted(original_positions)
+
+    # Prepare sorting functions
+    sorting_algorithms = {
+        "bubble_sort": bubble_sort,
+        "selection_sort": selection_sort,
+        "insertion_sort": insertion_sort,
+        "merge_sort": merge_sort
     }
-    
-    # TODO: Test each algorithm and update results dictionary with "Stable" or "Unstable"
-    
+
+    # For each algorithm, sort by price and check stability
+    for name, func in sorting_algorithms.items():
+        # Sort using key (decorate-sort-undecorate pattern)
+        decorated = [(p["price"], i, p) for i, p in enumerate(products)]
+        sorted_decorated = func(decorated)
+        sorted_products = [p for _, _, p in sorted_decorated]
+
+        stable_999 = is_stable(sorted_products, 999)
+        stable_1999 = is_stable(sorted_products, 1999)
+        if stable_999 and stable_1999:
+            results[name] = "Stable"
+        else:
+            results[name] = "Unstable"
+
     return results
 
 
@@ -285,10 +347,7 @@ if __name__ == "__main__":
     print("SORTING ASSIGNMENT - STARTER CODE")
     print("Implement the sorting functions above, then run tests.\n")
     
-    # Uncomment these as you complete each part:
-    
-    # test_sorting_correctness()
-    # benchmark_all_datasets()
-    # analyze_stability()
-    
-    print("\n⚠ Uncomment the test functions in the main block to run benchmarks!")
+    # Run all tests and benchmarks
+    test_sorting_correctness()
+    benchmark_all_datasets()
+    analyze_stability()
